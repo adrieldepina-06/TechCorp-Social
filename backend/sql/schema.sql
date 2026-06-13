@@ -39,6 +39,7 @@ CREATE TABLE posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     content TEXT NOT NULL,
+    image VARCHAR(255) DEFAULT NULL,
     visibility ENUM('public', 'private') DEFAULT 'public',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
