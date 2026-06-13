@@ -6,7 +6,7 @@ const db = require("./db");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
-
+const friendRoutes = require("./routes/friendRoutes");
 
 const app = express();
 
@@ -37,6 +37,7 @@ app.get("/test-db", async (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/friends", friendRoutes);
 
 //temp for testing delete it latter 
 app.get("/api/protected", authMiddleware, (req, res) => {
