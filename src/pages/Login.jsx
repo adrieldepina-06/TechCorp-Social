@@ -1,12 +1,49 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  // 1. Estados para controlar os inputs, erros e carregamento
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Aqui no futuro validamos o email/senha. Por agora, saltamos direto para o feed!
-    navigate('/timeline');
+    setError('');
+    setLoading(true);
+
+    try {
+      // 2. Faz o pedido HTTP POST para o teu backend na porta 5000
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Se o status for 400 ou 401, apanha a mensagem de erro do teu colega
+        throw new Error(data.message || 'Falha ao iniciar sessão.');
+      }
+
+      // 3. SE CORREU BEM: Guarda o Token e os dados do Utilizador no LocalStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // 4. Salta para a Cronologia
+      navigate('/timeline');
+    } catch (err) {
+      // Exibe o erro ("Invalid email or password", etc.) no ecrã
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -19,6 +56,13 @@ function Login() {
           <p className="text-muted small">Entre para colaborar com a sua equipa</p>
         </div>
 
+        {/* Alerta de Erro Dinâmico */}
+        {error && (
+          <div className="alert alert-danger p-2 text-center small fw-bold mb-3" role="alert">
+            {error === 'Invalid email or password' ? 'Email ou Palavra-passe incorretos.' : error}
+          </div>
+        )}
+
         {/* Formulário */}
         <form onSubmit={handleLogin}>
           <div className="mb-3">
@@ -29,7 +73,10 @@ function Login() {
               type="email"
               className="form-control"
               placeholder="nome@techcorp.local"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
 
@@ -44,13 +91,20 @@ function Login() {
               type="password"
               className="form-control"
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
 
-          {/* Botão de Submissão */}
-          <button type="submit" className="btn btn-primary w-100 fw-bold py-2 shadow-sm">
-            Iniciar Sessão
+          {/* Botão de Submissão Dinâmico */}
+          <button
+            type="submit"
+            className="btn btn-primary w-100 fw-bold py-2 shadow-sm"
+            disabled={loading}
+          >
+            {loading ? 'A verificar credenciais...' : 'Iniciar Sessão'}
           </button>
         </form>
 
