@@ -6,7 +6,14 @@ const router = express.Router();
 
 async function canSeePost(userId, postId) {
     const [posts] = await db.query(
-        "SELECT * FROM posts WHERE id = ?",
+        `SELECT 
+            posts.id,
+            posts.user_id,
+            posts.visibility,
+            users.profile_visibility
+         FROM posts
+         JOIN users ON posts.user_id = users.id
+         WHERE posts.id = ?`,
         [postId]
     );
 
@@ -15,10 +22,6 @@ async function canSeePost(userId, postId) {
     }
 
     const post = posts[0];
-
-    if (post.visibility === "public") {
-        return true;
-    }
 
     if (post.user_id == userId) {
         return true;
@@ -32,6 +35,10 @@ async function canSeePost(userId, postId) {
     );
 
     if (friends.length > 0) {
+        return true;
+    }
+
+    if (post.visibility === "public" && post.profile_visibility === "public") {
         return true;
     }
 

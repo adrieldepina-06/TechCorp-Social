@@ -3,21 +3,28 @@ import { useState } from 'react';
 function CreatePost({ onSalvar, onFechar }) {
   const [texto, setTexto] = useState('');
   const [imagem, setImagem] = useState(null);
+  const [visibilidade, setVisibilidade] = useState('public');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!texto.trim() && !imagem) return;
 
-    // Como o backend aceita uploads, usamos FormData para agrupar texto e ficheiro
-    const formData = new FormData();
-    formData.append("content", texto);
-    if (imagem) {
-      formData.append("image", imagem);
+    if (!texto.trim() && !imagem) {
+      return;
     }
 
-    onSalvar(formData); // Envia o FormData completo para o handleAdicionarPost da Timeline
+    const formData = new FormData();
+    formData.append('content', texto);
+    formData.append('visibility', visibilidade);
+
+    if (imagem) {
+      formData.append('image', imagem);
+    }
+
+    onSalvar(formData);
+
     setTexto('');
     setImagem(null);
+    setVisibilidade('public');
     onFechar();
   };
 
@@ -27,16 +34,31 @@ function CreatePost({ onSalvar, onFechar }) {
         <textarea
           className="form-control border-0 bg-light p-3"
           rows="4"
-          placeholder="No que está a pensar para o projeto hoje?..."
+          placeholder="No que está a pensar hoje?"
           style={{ resize: 'none', fontSize: '14px' }}
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
         ></textarea>
       </div>
 
-      {/* Campo de Upload de Imagem Integrado com o Multer do colega */}
-      <div className="mb-3 px-1">
-        <label className="form-label text-secondary small fw-bold">Adicionar Imagem à Publicação (Opcional):</label>
+      <div className="mb-3">
+        <label className="form-label text-secondary small fw-bold">
+          Visibilidade
+        </label>
+        <select
+          className="form-select form-select-sm"
+          value={visibilidade}
+          onChange={(e) => setVisibilidade(e.target.value)}
+        >
+          <option value="public">Público</option>
+          <option value="private">Privado</option>
+        </select>
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label text-secondary small fw-bold">
+          Imagem opcional
+        </label>
         <input
           type="file"
           className="form-control form-control-sm"
@@ -45,17 +67,18 @@ function CreatePost({ onSalvar, onFechar }) {
         />
       </div>
 
-      <div className="d-flex justify-content-end gap-2 border-top pt-3 bg-light m-n3 p-3 rounded-bottom">
+      <div className="d-flex justify-content-end gap-2 border-top pt-3">
         <button
           type="button"
-          className="btn btn-sm btn-outline-secondary fw-bold px-3"
+          className="btn btn-sm btn-outline-secondary"
           onClick={onFechar}
         >
           Cancelar
         </button>
+
         <button
           type="submit"
-          className="btn btn-sm btn-primary fw-bold px-4 shadow-sm"
+          className="btn btn-sm btn-primary"
         >
           Publicar
         </button>

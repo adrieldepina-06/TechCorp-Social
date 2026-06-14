@@ -1,41 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function PostCard({ post }) {
-  // Mapeado para ler 'likes_count' vindo da Query SQL do backend
-  const [gostos, setGostos] = useState(post.likes_count || 0);
-  const [deuGosto, setDeuGosto] = useState(false);
+  const [likes, setLikes] = useState(post.likes_count || 0);
+  const [liked, setLiked] = useState(Boolean(post.liked_by_me));
+  const [commentsCount, setCommentsCount] = useState(post.comments_count || 0);
 
-  // Sincronização Real do Like com o Backend
-  const handleGosto = async () => {
-    const token = localStorage.getItem("token");
-    const metodo = deuGosto ? "DELETE" : "POST";
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState('');
+  const [commentsLoading, setCommentsLoading] = useState(false);
 
-    try {
-      const response = await fetch(`http://localhost:5000/api/posts/${post.id}/like`, {
-        method: metodo,
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
+  const token = localStorage.getItem('token');
 
-      if (response.ok) {
-        setGostos(deuGosto ? gostos - 1 : gostos + 1);
-        setDeuGosto(!deuGosto);
-      }
-    } catch (err) {
-      console.error("Erro ao processar o gosto:", err);
-    }
+  useEffect(() => {
+    setLikes(post.likes_count || 0);
+    setLiked(Boolean(post.liked_by_me));
+    setCommentsCount(post.comments_count || 0);
+  }, [post]);
+
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
-  const obterIniciais = (nome) => {
-    if (!nome) return "TC";
-    return nome.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
-
-  // Formatação amigável da data vinda do MySQL
-  const formatarData = (dataSql) => {
-    if (!dataSql) return "Agora mesmo";
-    return new Date(dataSql).toLocaleDateString('pt-PT', {
+  const formatDate = (dateValue) => {
+    if (!dateValue) return 'Agora';
+    return new Date(dateValue).toLocaleDateString('pt-PT', {
       day: '2-digit',
       month: '2-digit',
       hour: '2-digit',
@@ -43,86 +39,222 @@ function PostCard({ post }) {
     });
   };
 
+  const handleLike = async () => {
+    const method = liked ? 'DELETE' : 'POST';
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${post.id}/like`, {
+        method: method,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        setLiked(!liked);
+        setLikes(liked ? likes - 1 : likes + 1);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const loadComments = async () => {
+    try {
+      setCommentsLoading(true);
+
+      const res = await fetch(`http://localhost:5000/api/comments/post/${post.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setComments(data);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const toggleComments = async () => {
+    if (!showComments) {
+      await loadComments();
+    }
+
+    setShowComments(!showComments);
+  };
+
+  const addComment = async (e) => {
+    e.preventDefault();
+
+    if (!commentText.trim()) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/comments/post/${post.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          content: commentText
+        })
+      });
+
+      if (res.ok) {
+        setCommentText('');
+        setCommentsCount(commentsCount + 1);
+        await loadComments();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const likeComment = async (comment) => {
+    const method = comment.liked_by_me ? 'DELETE' : 'POST';
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/comments/${comment.id}/like`, {
+        method: method,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        setComments((oldComments) =>
+          oldComments.map((item) => {
+            if (item.id !== comment.id) {
+              return item;
+            }
+
+            return {
+              ...item,
+              liked_by_me: comment.liked_by_me ? 0 : 1,
+              likes_count: comment.liked_by_me
+                ? Number(comment.likes_count) - 1
+                : Number(comment.likes_count) + 1
+            };
+          })
+        );
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <div className="card shadow-sm border-0 p-3 mb-3 bg-white">
-
-      {/* Cabeçalho do Post - Mapeado para post.name */}
       <div className="d-flex align-items-center mb-3">
         <div
-          className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold me-3 shadow-sm"
+          className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold me-3"
           style={{ width: '45px', height: '45px', fontSize: '15px' }}
         >
-          {obterIniciais(post.name)}
+          {getInitials(post.name)}
         </div>
+
         <div>
-          <h6 className="mb-0 fw-bold text-dark">{post.name || "Utilizador TechCorp"}</h6>
+          <h6 className="mb-0 fw-bold">{post.name || 'User'}</h6>
           <small className="text-muted" style={{ fontSize: '12px' }}>
-            Colaborador • {formatarData(post.created_at)}
+            {formatDate(post.created_at)} · {post.visibility === 'private' ? 'Privado' : 'Público'}
           </small>
         </div>
       </div>
 
-      {/* Corpo do Post - Mapeado para post.content */}
-      <p className="text-secondary mb-3" style={{ fontSize: '14px', lineHeight: '1.5' }}>
-        {post.content}
-      </p>
+      {post.content && (
+        <p className="text-secondary mb-3" style={{ fontSize: '14px' }}>
+          {post.content}
+        </p>
+      )}
 
-      {/* Upload de Imagem integrado (se existir imagem na base de dados) */}
       {post.image && (
         <div className="mb-3 rounded overflow-hidden border">
           <img
             src={`http://localhost:5000${post.image}`}
-            alt="Publicação"
+            alt="Post"
             style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }}
           />
         </div>
       )}
 
-      <hr className="my-2 opacity-25" />
+      <hr className="my-2" />
 
-      {/* Botões de Ação */}
       <div className="row g-2 text-center mb-2">
         <div className="col-6">
           <button
-            className={`btn btn-sm w-100 fw-bold bg-light ${deuGosto ? 'text-primary' : 'text-secondary'}`}
-            style={{ fontSize: '13px', border: '1px solid #eee' }}
-            onClick={handleGosto}
+            className={`btn btn-sm w-100 fw-bold ${liked ? 'btn-primary' : 'btn-light'}`}
+            onClick={handleLike}
           >
-            {deuGosto ? '❤️ Gostei' : '👍 Gostará'} ({gostos})
+            {liked ? 'Gostei' : 'Gosto'} ({likes})
           </button>
         </div>
+
         <div className="col-6">
-          <div
-            className="btn btn-sm w-100 fw-bold bg-light text-secondary disabled"
-            style={{ fontSize: '13px', border: '1px solid #eee' }}
+          <button
+            className="btn btn-sm w-100 fw-bold btn-light"
+            onClick={toggleComments}
           >
-            Comentários (0)
-          </div>
+            Comentários ({commentsCount})
+          </button>
         </div>
       </div>
 
-      {/* Secção de comentários salvaguardada (caso adicionem no futuro) */}
-      {post.comentarios && post.comentarios.length > 0 && (
-        <div className="mt-3 pt-2 border-top border-light">
-          {post.comentarios.map((comentario) => (
-            <div key={comentario.id} className="card bg-light border-0 p-2 mb-2">
+      {showComments && (
+        <div className="mt-3 pt-3 border-top">
+          <form onSubmit={addComment} className="d-flex gap-2 mb-3">
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder="Escrever comentário..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+            />
+            <button className="btn btn-sm btn-primary" type="submit">
+              Enviar
+            </button>
+          </form>
+
+          {commentsLoading && (
+            <p className="text-muted small">A carregar comentários...</p>
+          )}
+
+          {!commentsLoading && comments.length === 0 && (
+            <p className="text-muted small mb-0">Sem comentários ainda.</p>
+          )}
+
+          {comments.map((comment) => (
+            <div key={comment.id} className="bg-light rounded p-2 mb-2">
               <div className="d-flex align-items-start">
                 <div
                   className="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center fw-bold me-2"
                   style={{ width: '28px', height: '28px', fontSize: '10px', minWidth: '28px' }}
                 >
-                  {obterIniciais(comentario.autor)}
+                  {getInitials(comment.name)}
                 </div>
-                <div style={{ fontSize: '13px' }}>
-                  <strong className="text-dark me-1">{comentario.autor}</strong>
-                  <span className="text-secondary">{comentario.texto}</span>
+
+                <div className="flex-grow-1" style={{ fontSize: '13px' }}>
+                  <strong>{comment.name}</strong>
+                  <div className="text-secondary">{comment.content}</div>
+
+                  <button
+                    className="btn btn-link btn-sm p-0 mt-1 text-decoration-none"
+                    onClick={() => likeComment(comment)}
+                  >
+                    {comment.liked_by_me ? 'Remover gosto' : 'Gosto'} ({comment.likes_count || 0})
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
-
     </div>
   );
 }

@@ -83,8 +83,7 @@ router.get("/timeline", auth, async (req, res) => {
                     AND my_likes.user_id = ?
 
                 WHERE 
-                    posts.visibility = 'public'
-                    OR posts.user_id = ?
+                    posts.user_id = ?
                     OR posts.user_id IN (
                     SELECT 
                         CASE
@@ -93,7 +92,8 @@ router.get("/timeline", auth, async (req, res) => {
                         END
                     FROM friendships
                     WHERE user1_id = ? OR user2_id = ?
-                    )   
+                    )  
+                    OR (posts.visibility = 'public' AND users.profile_visibility = 'public')  
 
                 GROUP BY posts.id
                 ORDER BY posts.created_at DESC
@@ -131,6 +131,9 @@ router.get("/user/:id", auth, async (req, res) => {
             }
         }
 
+        if (profile.profile_visibility === "private" && !canSeePrivate) {
+            return res.status(403).json({ message: "This profile is private" });
+        }
         let sql = `
             SELECT 
                 posts.id,
