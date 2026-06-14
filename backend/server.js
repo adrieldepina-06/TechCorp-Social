@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-const initDatabase = require("./sql/initDb");
+//no need for the auto now 
+//const initDatabase = require("./sql/initDb");
+
 require("dotenv").config();
 
 const db = require("./db");
@@ -57,6 +59,7 @@ app.get("/api/protected", authMiddleware, (req, res) => {
 
 
 const PORT = process.env.PORT || 5000;
+/* this code below is for auto create db 
 
 async function startServer() {
   // Executa a criação/verificação automática das tabelas
@@ -68,3 +71,8 @@ async function startServer() {
 }
 
 startServer();
+*/
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
