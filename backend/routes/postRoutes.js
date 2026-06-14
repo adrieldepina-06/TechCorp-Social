@@ -54,35 +54,51 @@ router.get("/timeline", auth, async (req, res) => {
 
         const [posts] = await db.query(
             `
-      SELECT 
-        posts.id,
-        posts.content,
-        posts.image,
-        posts.visibility,
-        posts.created_at,
-        users.id AS user_id,
-        users.name,
-        users.avatar,
-        COUNT(post_likes.id) AS likes_count
-      FROM posts
-      JOIN users ON posts.user_id = users.id
-      LEFT JOIN post_likes ON posts.id = post_likes.post_id
-      WHERE 
-        posts.visibility = 'public'
-        OR posts.user_id = ?
-        OR posts.user_id IN (
-          SELECT 
-            CASE
-              WHEN user1_id = ? THEN user2_id
-              ELSE user1_id
-            END
-          FROM friendships
-          WHERE user1_id = ? OR user2_id = ?
-        )
-      GROUP BY posts.id
-      ORDER BY posts.created_at DESC
-      `,
-            [userId, userId, userId, userId]
+                SELECT 
+                    posts.id,
+                    posts.content,
+                    posts.image,
+                    posts.visibility,
+                    posts.created_at,
+                    users.id AS user_id,
+                    users.name,
+                    users.avatar,
+
+                    COUNT(DISTINCT post_likes.id) AS likes_count,
+                    COUNT(DISTINCT comments.id) AS comments_count,
+
+                    MAX(CASE 
+                    WHEN my_likes.user_id IS NOT NULL THEN 1 
+                    ELSE 0 
+                    END) AS liked_by_me
+
+                FROM posts
+                JOIN users ON posts.user_id = users.id
+
+                LEFT JOIN post_likes ON posts.id = post_likes.post_id
+                LEFT JOIN comments ON posts.id = comments.post_id
+
+                LEFT JOIN post_likes AS my_likes 
+                    ON posts.id = my_likes.post_id 
+                    AND my_likes.user_id = ?
+
+                WHERE 
+                    posts.visibility = 'public'
+                    OR posts.user_id = ?
+                    OR posts.user_id IN (
+                    SELECT 
+                        CASE
+                        WHEN user1_id = ? THEN user2_id
+                        ELSE user1_id
+                        END
+                    FROM friendships
+                    WHERE user1_id = ? OR user2_id = ?
+                    )   
+
+                GROUP BY posts.id
+                ORDER BY posts.created_at DESC
+                `,
+            [userId, userId, userId, userId, userId]
         );
 
         res.json(posts);
@@ -116,23 +132,38 @@ router.get("/user/:id", auth, async (req, res) => {
         }
 
         let sql = `
-      SELECT 
-        posts.id,
-        posts.content,
-        posts.image,
-        posts.visibility,
-        posts.created_at,
-        users.id AS user_id,
-        users.name,
-        users.avatar,
-        COUNT(post_likes.id) AS likes_count
-      FROM posts
-      JOIN users ON posts.user_id = users.id
-      LEFT JOIN post_likes ON posts.id = post_likes.post_id
-      WHERE posts.user_id = ?
-    `;
+            SELECT 
+                posts.id,
+                posts.content,
+                posts.image,
+                posts.visibility,
+                posts.created_at,
+                users.id AS user_id,
+                users.name,
+                users.avatar,
 
-        let values = [userId];
+                COUNT(DISTINCT post_likes.id) AS likes_count,
+                COUNT(DISTINCT comments.id) AS comments_count,
+
+                MAX(CASE 
+                WHEN my_likes.user_id IS NOT NULL THEN 1 
+                ELSE 0 
+                END) AS liked_by_me
+
+            FROM posts
+            JOIN users ON posts.user_id = users.id
+
+            LEFT JOIN post_likes ON posts.id = post_likes.post_id
+            LEFT JOIN comments ON posts.id = comments.post_id
+
+            LEFT JOIN post_likes AS my_likes 
+                ON posts.id = my_likes.post_id 
+                AND my_likes.user_id = ?
+
+            WHERE posts.user_id = ?
+            `;
+
+        let values = [myId, userId];
 
         if (!canSeePrivate) {
             sql += " AND posts.visibility = 'public'";

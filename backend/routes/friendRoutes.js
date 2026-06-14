@@ -141,4 +141,24 @@ router.get("/", auth, async (req, res) => {
     }
 });
 
+// remove friend
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const friendId = req.params.id;
+
+    await db.query(
+      `DELETE FROM friendships
+       WHERE (user1_id = ? AND user2_id = ?)
+       OR (user1_id = ? AND user2_id = ?)`,
+      [userId, friendId, friendId, userId]
+    );
+
+    res.json({ message: "Friend removed" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;
