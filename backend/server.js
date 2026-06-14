@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const initDatabase = require("./sql/initDb");
 require("dotenv").config();
 
 const db = require("./db");
@@ -57,6 +58,13 @@ app.get("/api/protected", authMiddleware, (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+async function startServer() {
+  // Executa a criação/verificação automática das tabelas
+  await initDatabase();
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+startServer();

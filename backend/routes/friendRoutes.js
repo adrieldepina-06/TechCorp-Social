@@ -140,6 +140,20 @@ router.get("/", auth, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+// get all pending requests (sent and received)
+router.get("/my-requests", auth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const [requests] = await db.query(
+            "SELECT * FROM friend_requests WHERE (sender_id = ? OR receiver_id = ?) AND status = 'pending'",
+            [userId, userId]
+        );
+        res.json(requests);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
 
 // remove friend
 router.delete("/:id", auth, async (req, res) => {
