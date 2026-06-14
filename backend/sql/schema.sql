@@ -1,6 +1,8 @@
+CREATE DATABASE IF NOT EXISTS mini_social_network;
+
 USE mini_social_network;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
@@ -10,7 +12,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE friend_requests (
+CREATE TABLE IF NOT EXISTS friend_requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     sender_id INT NOT NULL,
     receiver_id INT NOT NULL,
@@ -20,10 +22,11 @@ CREATE TABLE friend_requests (
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
 
-    UNIQUE(sender_id, receiver_id)
+    UNIQUE(sender_id, receiver_id),
+    CONSTRAINT chk_friend_request_not_self CHECK (sender_id <> receiver_id)
 );
 
-CREATE TABLE friendships (
+CREATE TABLE IF NOT EXISTS friendships (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user1_id INT NOT NULL,
     user2_id INT NOT NULL,
@@ -32,10 +35,11 @@ CREATE TABLE friendships (
     FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE,
 
-    UNIQUE(user1_id, user2_id)
+    UNIQUE(user1_id, user2_id),
+    CONSTRAINT chk_friendship_not_self CHECK (user1_id <> user2_id)
 );
 
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     content TEXT NOT NULL,
@@ -46,7 +50,7 @@ CREATE TABLE posts (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE comments (
+CREATE TABLE IF NOT EXISTS comments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL,
     user_id INT NOT NULL,
@@ -57,7 +61,7 @@ CREATE TABLE comments (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE post_likes (
+CREATE TABLE IF NOT EXISTS post_likes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL,
     user_id INT NOT NULL,
@@ -69,7 +73,7 @@ CREATE TABLE post_likes (
     UNIQUE(post_id, user_id)
 );
 
-CREATE TABLE comment_likes (
+CREATE TABLE IF NOT EXISTS comment_likes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     comment_id INT NOT NULL,
     user_id INT NOT NULL,
@@ -80,3 +84,9 @@ CREATE TABLE comment_likes (
 
     UNIQUE(comment_id, user_id)
 );
+
+-- Friendships are stored bidirectionally.
+-- Example:
+-- If user 1 and user 2 become friends, the friendships table stores:
+-- (user1_id = 1, user2_id = 2)
+-- (user1_id = 2, user2_id = 1)

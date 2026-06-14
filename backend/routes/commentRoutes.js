@@ -28,10 +28,8 @@ async function canSeePost(userId, postId) {
     }
 
     const [friends] = await db.query(
-        `SELECT * FROM friendships
-         WHERE (user1_id = ? AND user2_id = ?)
-         OR (user1_id = ? AND user2_id = ?)`,
-        [userId, post.user_id, post.user_id, userId]
+        "SELECT * FROM friendships WHERE user1_id = ? AND user2_id = ?",
+        [userId, post.user_id]
     );
 
     if (friends.length > 0) {

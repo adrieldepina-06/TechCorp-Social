@@ -87,20 +87,16 @@ router.get("/timeline", auth, async (req, res) => {
                 WHERE 
                     posts.user_id = ?
                     OR posts.user_id IN (
-                    SELECT 
-                        CASE
-                        WHEN user1_id = ? THEN user2_id
-                        ELSE user1_id
-                        END
-                    FROM friendships
-                    WHERE user1_id = ? OR user2_id = ?
-                    )  
+                        SELECT user2_id
+                        FROM friendships
+                        WHERE user1_id = ?
+                    )
                     OR (posts.visibility = 'public' AND users.profile_visibility = 'public')  
 
                 GROUP BY posts.id
                 ORDER BY posts.created_at DESC
                 `,
-            [userId, userId, userId, userId, userId]
+            [userId, userId, userId]
         );
 
         res.json(posts);
@@ -133,10 +129,8 @@ router.get("/user/:id", auth, async (req, res) => {
             canSeePrivate = true;
         } else {
             const [friends] = await db.query(
-                `SELECT * FROM friendships
-         WHERE (user1_id = ? AND user2_id = ?)
-         OR (user1_id = ? AND user2_id = ?)`,
-                [myId, userId, userId, myId]
+                "SELECT * FROM friendships WHERE user1_id = ? AND user2_id = ?",
+                [myId, userId]
             );
 
             if (friends.length > 0) {
@@ -243,40 +237,40 @@ router.delete("/:id/like", auth, async (req, res) => {
 
 // delete my post
 router.delete("/:id", auth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const postId = req.params.id;
+    try {
+        const userId = req.user.id;
+        const postId = req.params.id;
 
-    const [posts] = await db.query(
-      "SELECT * FROM posts WHERE id = ? AND user_id = ?",
-      [postId, userId]
-    );
+        const [posts] = await db.query(
+            "SELECT * FROM posts WHERE id = ? AND user_id = ?",
+            [postId, userId]
+        );
 
-    if (posts.length === 0) {
-      return res.status(404).json({ message: "Post not found or not yours" });
+        if (posts.length === 0) {
+            return res.status(404).json({ message: "Post not found or not yours" });
+        }
+
+        const post = posts[0];
+
+        await db.query(
+            "DELETE FROM posts WHERE id = ?",
+            [postId]
+        );
+
+        if (post.image) {
+            const fileName = path.basename(post.image);
+            const imagePath = path.join(__dirname, "..", "uploads", fileName);
+
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
+
+        res.json({ message: "Post deleted" });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Server error" });
     }
-
-    const post = posts[0];
-
-    await db.query(
-      "DELETE FROM posts WHERE id = ?",
-      [postId]
-    );
-
-    if (post.image) {
-      const fileName = path.basename(post.image);
-      const imagePath = path.join(__dirname, "..", "uploads", fileName);
-
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
-    }
-
-    res.json({ message: "Post deleted" });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" });
-  }
 });
 
 module.exports = router;

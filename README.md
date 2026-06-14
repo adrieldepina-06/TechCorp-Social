@@ -41,7 +41,7 @@ Main Features
 * Protect private profiles and private posts
 * Public posts from private accounts are hidden from non-friends
 * Delete own posts and remove uploaded image file from uploads folder
-
+* Bidirectional friendships: when two users become friends, two friendship records are stored in the database.
 Technologies Used
 
 Frontend:
@@ -142,6 +142,8 @@ Important Notes
 * Only the comment owner can delete a comment.
 * Private profiles and posts are protected in the backend, not only in the frontend.
 * When a post with an image is deleted, the backend also deletes the image file from the uploads folder.
+* Friendships are stored bidirectionally in the database. When two users become friends, the `friendships` table stores two records: one from User A to User B and another from User B to User A. This makes friend-list and timeline queries simpler because the backend can directly search friendships where `user1_id` is the logged-in user.
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
