@@ -14,17 +14,42 @@ router.post("/request/:id", auth, async (req, res) => {
             return res.status(400).json({ message: "You cannot add yourself" });
         }
 
-        const [oldRequest] = await db.query(
-            "SELECT * FROM friend_requests WHERE sender_id = ? AND receiver_id = ?",
-            [senderId, receiverId]
+        // 1. Verificar se JÁ SÃO amigos atualmente
+        const [alreadyFriends] = await db.query(
+            `SELECT * FROM friendships
+             WHERE (user1_id = ? AND user2_id = ?)
+             OR (user1_id = ? AND user2_id = ?)`,
+            [senderId, receiverId, receiverId, senderId]
         );
 
-        if (oldRequest.length > 0) {
-            return res.status(400).json({ message: "Request already sent" });
+        if (alreadyFriends.length > 0) {
+            return res.status(400).json({ message: "You are already friends" });
         }
 
+        // 2. Verificar se já existe um pedido PENDENTE em QUALQUER uma das direções
+        const [pendingRequest] = await db.query(
+            `SELECT * FROM friend_requests
+             WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
+             AND status = 'pending'`,
+            [senderId, receiverId, receiverId, senderId]
+        );
+
+        if (pendingRequest.length > 0) {
+            return res.status(400).json({ message: "A friend request is already pending" });
+        }
+
+        // 3. LIMPEZA DE HISTÓRICO: Apagar pedidos antigos ('accepted' ou 'rejected')
+        // entre estes dois utilizadores para iniciar um ciclo novo e limpo
         await db.query(
-            "INSERT INTO friend_requests (sender_id, receiver_id) VALUES (?, ?)",
+            `DELETE FROM friend_requests
+             WHERE (sender_id = ? AND receiver_id = ?)
+             OR (sender_id = ? AND receiver_id = ?)`,
+            [senderId, receiverId, receiverId, senderId]
+        );
+
+        // 4. Inserir o novo pedido limpo
+        await db.query(
+            "INSERT INTO friend_requests (sender_id, receiver_id, status) VALUES (?, ?, 'pending')",
             [senderId, receiverId]
         );
 
@@ -161,10 +186,19 @@ router.delete("/:id", auth, async (req, res) => {
     const userId = req.user.id;
     const friendId = req.params.id;
 
+    // Remover da tabela de amizades
     await db.query(
       `DELETE FROM friendships
        WHERE (user1_id = ? AND user2_id = ?)
        OR (user1_id = ? AND user2_id = ?)`,
+      [userId, friendId, friendId, userId]
+    );
+
+    // CORREÇÃO: Remover também os pedidos associados do histórico
+    await db.query(
+      `DELETE FROM friend_requests
+       WHERE (sender_id = ? AND receiver_id = ?)
+       OR (sender_id = ? AND receiver_id = ?)`,
       [userId, friendId, friendId, userId]
     );
 

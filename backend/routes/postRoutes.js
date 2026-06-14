@@ -108,21 +108,35 @@ router.get("/timeline", auth, async (req, res) => {
     }
 });
 
+
 // get posts of one user
 router.get("/user/:id", auth, async (req, res) => {
     try {
         const myId = req.user.id;
         const userId = req.params.id;
 
+        // 1. ADICIONADO: Procura a visibilidade do perfil do utilizador alvo na base de dados
+        const [userRows] = await db.query(
+            "SELECT profile_visibility FROM users WHERE id = ?",
+            [userId]
+        );
+
+        // Se o utilizador não existir, envia logo um erro 404
+        if (userRows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const profile = userRows[0]; // Agora a variável 'profile' já existe!
         let canSeePrivate = false;
 
         if (myId == userId) {
             canSeePrivate = true;
         } else {
+            // Verifica se são amigos na tabela de amizades
             const [friends] = await db.query(
                 `SELECT * FROM friendships
-         WHERE (user1_id = ? AND user2_id = ?)
-         OR (user1_id = ? AND user2_id = ?)`,
+                 WHERE (user1_id = ? AND user2_id = ?)
+                 OR (user1_id = ? AND user2_id = ?)`,
                 [myId, userId, userId, myId]
             );
 
@@ -131,9 +145,11 @@ router.get("/user/:id", auth, async (req, res) => {
             }
         }
 
+        // 2. Agora esta validação de segurança vai funcionar perfeitamente sem dar crash
         if (profile.profile_visibility === "private" && !canSeePrivate) {
             return res.status(403).json({ message: "This profile is private" });
         }
+
         let sql = `
             SELECT 
                 posts.id,
