@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function PostCard({ post }) {
   const [likes, setLikes] = useState(post.likes_count || 0);
@@ -9,14 +10,51 @@ function PostCard({ post }) {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
   const [commentsLoading, setCommentsLoading] = useState(false);
-
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
+
+  let user = null;
+
+  try {
+    user = JSON.parse(localStorage.getItem('user'));
+  } catch (err) {
+    user = null;
+  }
+
+  const isMyPost = user && Number(user.id) === Number(post.user_id);
 
   useEffect(() => {
     setLikes(post.likes_count || 0);
     setLiked(Boolean(post.liked_by_me));
     setCommentsCount(post.comments_count || 0);
   }, [post]);
+
+  const deletePost = async () => {
+    const ok = window.confirm('Delete this post?');
+
+    if (!ok) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${post.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        alert(data.message || 'Could not delete post');
+      }
+    } catch (err) {
+      console.log(err);
+      alert('Error deleting post');
+    }
+  };
 
   const getInitials = (name) => {
     if (!name) return 'U';
@@ -152,7 +190,11 @@ function PostCard({ post }) {
 
   return (
     <div className="card shadow-sm border-0 p-3 mb-3 bg-white">
-      <div className="d-flex align-items-center mb-3">
+      <div
+        className="d-flex align-items-center mb-3"
+        style={{ cursor: 'pointer' }}
+        onClick={() => navigate(`/profile/${post.user_id}`)}
+      >
         <div
           className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold me-3"
           style={{ width: '45px', height: '45px', fontSize: '15px' }}
@@ -166,6 +208,18 @@ function PostCard({ post }) {
             {formatDate(post.created_at)} · {post.visibility === 'private' ? 'Privado' : 'Público'}
           </small>
         </div>
+
+        {isMyPost && (
+          <button
+            className="btn btn-sm btn-outline-danger ms-auto"
+            onClick={(e) => {
+              e.stopPropagation();
+              deletePost();
+            }}
+          >
+            Delete
+          </button>
+        )}        
       </div>
 
       {post.content && (
