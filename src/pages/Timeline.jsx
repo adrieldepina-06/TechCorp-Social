@@ -90,13 +90,13 @@ function Timeline() {
 
         {/* COLUNA ESQUERDA: Feed Principal */}
         <div className="col-lg-8">
-          <h4 className="mb-4 fw-bold">Cronologia</h4>
+          <h4 className="mb-4 fw-bold">Feed</h4>
 
-          {loading && <p>A carregar publicações...</p>}
+          {loading && <p>Loading...</p>}
           {error && <p style={{ color: 'red' }}>{error}</p>}
 
           {!loading && posts.length === 0 && (
-            <p className="text-secondary">Ainda não há nenhuma publicação para mostrar.</p>
+            <p className="text-secondary">No publications to show.</p>
           )}
 
           {posts.map((item) => (
@@ -108,10 +108,10 @@ function Timeline() {
         <div className="col-lg-4 mt-4 mt-lg-0">
           <div className="card shadow-sm border-0 p-3 bg-light">
             <h5 className="mb-3 fw-bold text-secondary" style={{ fontSize: '16px' }}>
-              Sugestões de Amizade
+              Friend Suggestions
             </h5>
             <p className="text-muted small mb-0">
-              Em breve: sugestões baseadas na tua rede!
+              Coming soon: suggestions based on your network!
             </p>
           </div>
         </div>
@@ -124,7 +124,7 @@ function Timeline() {
         style={{ zIndex: 1000, fontSize: '15px' }}
         onClick={() => setMostrarCriarPost(true)}
       >
-        + Nova Publicação
+        + New Post
       </button>
 
       {/* MODAL */}
@@ -136,7 +136,7 @@ function Timeline() {
               <div className="modal-content shadow-lg border-0">
                 <div className="modal-header bg-light">
                   <h5 className="modal-title fw-bold text-secondary" style={{ fontSize: '16px' }}>
-                    Criar Nova Publicação
+                    New Post
                   </h5>
                   <button type="button" className="btn-close" onClick={() => setMostrarCriarPost(false)}></button>
                 </div>

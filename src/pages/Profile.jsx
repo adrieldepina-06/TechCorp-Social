@@ -324,13 +324,13 @@ function Profile() {
                   className="btn btn-primary btn-sm"
                   onClick={sendRequest}
                 >
-                  Adicionar
+                  Add
                 </button>
               )}
 
               {!isOwnProfile && status === 'sent' && (
                 <button className="btn btn-secondary btn-sm" disabled>
-                  Pedido pendente
+                  Pending Request
                 </button>
               )}
 
@@ -340,14 +340,14 @@ function Profile() {
                     className="btn btn-success btn-sm"
                     onClick={() => answerRequest('accept')}
                   >
-                    Aceitar
+                    Accept
                   </button>
 
                   <button
                     className="btn btn-outline-danger btn-sm"
                     onClick={() => answerRequest('reject')}
                   >
-                    Recusar
+                    Reject
                   </button>
                 </>
               )}
@@ -355,14 +355,14 @@ function Profile() {
               {!isOwnProfile && status === 'friend' && (
                 <>
                   <button className="btn btn-success btn-sm" disabled>
-                    Amigos
+                    Friends
                   </button>
 
                   <button
                     className="btn btn-outline-danger btn-sm"
                     onClick={removeFriend}
                   >
-                    Remover
+                    Remove
                   </button>
                 </>
               )}
@@ -376,12 +376,12 @@ function Profile() {
           <div className="col-lg-8">
             {editando && isOwnProfile && (
               <div className="card shadow-sm border-0 p-4 mb-4">
-                <h5 className="fw-bold mb-3">Editar perfil</h5>
+                <h5 className="fw-bold mb-3">Edit Profile</h5>
 
                 <form onSubmit={saveProfile}>
                   <div className="mb-3">
                     <label className="form-label small fw-bold">
-                      Nome
+                      Name
                     </label>
 
                     <input
@@ -393,7 +393,7 @@ function Profile() {
 
                   <div className="mb-3">
                     <label className="form-label small fw-bold">
-                      Visibilidade do perfil
+                      Profile Visibility
                     </label>
 
                     <select
@@ -401,23 +401,23 @@ function Profile() {
                       value={novaVisibilidade}
                       onChange={(e) => setNovaVisibilidade(e.target.value)}
                     >
-                      <option value="public">Público</option>
-                      <option value="private">Privado</option>
+                      <option value="public">Public</option>
+                      <option value="private">Private</option>
                     </select>
                   </div>
 
                   <button className="btn btn-primary btn-sm" type="submit">
-                    Guardar
+                    Save
                   </button>
                 </form>
               </div>
             )}
 
-            <h5 className="fw-bold mb-3">Publicações</h5>
+            <h5 className="fw-bold mb-3">Publications</h5>
 
             {posts.length === 0 && (
               <p className="text-muted small">
-                Nenhuma publicação para mostrar.
+                No publications to show.
               </p>
             )}
 
@@ -429,7 +429,7 @@ function Profile() {
           <div className="col-lg-4 mt-4 mt-lg-0">
             <div className="card shadow-sm border-0 p-3 bg-light">
               <h5 className="fw-bold mb-3" style={{ fontSize: '16px' }}>
-                Informações da conta
+                Account Info
               </h5>
 
               {isOwnProfile && (
@@ -442,7 +442,7 @@ function Profile() {
               )}
 
               <div className="mb-2">
-                <strong>Membro desde:</strong>
+                <strong>Member since:</strong>
                 <span className="text-muted text-capitalize d-block">
                   {formatDate(perfil.created_at)}
                 </span>
@@ -450,9 +450,9 @@ function Profile() {
 
               {!isOwnProfile && status === 'friend' && (
                 <div className="mb-2">
-                  <strong>Estado:</strong>
+                  <strong>Status:</strong>
                   <span className="text-success d-block">
-                    Amigos
+                    Friends
                   </span>
                 </div>
               )}
@@ -462,9 +462,9 @@ function Profile() {
       ) : (
         <div className="card shadow-sm border-0 p-5 text-center">
           <h4>🔒</h4>
-          <h5>Este perfil é privado</h5>
+          <h5>This profile is private</h5>
           <p className="text-muted mb-0">
-            Adiciona este utilizador para veres as suas publicações.
+            Add this user to see their publications.
           </p>
         </div>
       )}

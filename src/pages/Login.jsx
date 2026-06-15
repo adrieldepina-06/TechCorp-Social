@@ -46,7 +46,7 @@ function Login() {
 
         <div className="text-center mb-4">
           <h2 className="fw-bold text-info mb-1">TechCorp Social</h2>
-          <p className="text-muted small">Entre para colaborar com a sua equipa</p>
+          <p className="text-muted small">Find Your Community</p>
         </div>
 
         {error && (
@@ -58,12 +58,12 @@ function Login() {
         <form onSubmit={handleLogin}>
           <div className="mb-3">
             <label className="form-label text-secondary fw-bold" style={{ fontSize: '13px' }}>
-              Endereço de Email
+              Email
             </label>
             <input
               type="email"
               className="form-control"
-              placeholder="nome@techcorp.local"
+              placeholder="name@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -74,9 +74,9 @@ function Login() {
           <div className="mb-4">
             <div className="d-flex justify-content-between align-items-center mb-1">
               <label className="form-label text-secondary fw-bold mb-0" style={{ fontSize: '13px' }}>
-                Palavra-passe
+                password
               </label>
-              <a href="#" className="text-decoration-none small text-info">Esqueceu-se?</a>
+              <a href="#" className="text-decoration-none small text-info">Forgot your password?</a>
             </div>
             <input
               type="password"
@@ -94,13 +94,13 @@ function Login() {
             className="btn btn-primary w-100 fw-bold py-2 shadow-sm"
             disabled={loading}
           >
-            {loading ? 'A verificar credenciais...' : 'Iniciar Sessão'}
+            {loading ? 'Checking credentials...' : 'Login'}
           </button>
         </form>
 
         <div className="text-center mt-4 pt-3 border-top">
           <p className="text-muted small mb-0">
-            Novo na plataforma? <Link to="/register" className="text-decoration-none text-info fw-bold">Criar conta</Link>
+            New to the platform? <Link to="/register" className="text-decoration-none text-info fw-bold">Register</Link>
           </p>
         </div>
 

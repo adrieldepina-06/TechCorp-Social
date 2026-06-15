@@ -37,13 +37,13 @@ export default function Register() {
   return (
     <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
       <div className="card shadow-sm border-0 p-4" style={{ width: '100%', maxWidth: '400px' }}>
-        <h3 className="fw-bold text-center mb-3 text-primary">Criar Conta</h3>
+        <h3 className="fw-bold text-center mb-3 text-primary">Sign Up</h3>
 
         {error && <div className="alert alert-danger small py-2">{error}</div>}
 
         <form onSubmit={handleRegister}>
           <div className="mb-3">
-            <label className="form-label small fw-bold text-secondary">Nome Completo</label>
+            <label className="form-label small fw-bold text-secondary">Name</label>
             <input
               type="text"
               className="form-control form-control-sm"
@@ -63,7 +63,7 @@ export default function Register() {
             />
           </div>
           <div className="mb-3">
-            <label className="form-label small fw-bold text-secondary">Palavra-passe</label>
+            <label className="form-label small fw-bold text-secondary">Password</label>
             <input
               type="password"
               className="form-control form-control-sm"
@@ -73,12 +73,12 @@ export default function Register() {
             />
           </div>
           <button type="submit" className="btn btn-primary btn-sm w-100 fw-bold mb-2">
-            Registar Hub
+            Sign Up
           </button>
         </form>
         <div className="text-center mt-2">
           <small className="text-muted">
-            Já tem conta? <Link to="/" className="text-decoration-none fw-bold">Entrar</Link>
+            Already have an account? <Link to="/" className="text-decoration-none fw-bold">Login</Link>
           </small>
         </div>
       </div>

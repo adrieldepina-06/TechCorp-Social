@@ -149,16 +149,16 @@ function Community() {
 
   return (
     <div className="container mt-4" style={{ maxWidth: '1140px' }}>
-      <h4 className="fw-bold mb-4">Comunidade</h4>
+      <h4 className="fw-bold mb-4">Community</h4>
 
       <div className="row">
         <div className="col-lg-8">
           {loading && (
-            <p className="text-muted small">A carregar membros da rede...</p>
+            <p className="text-muted small">Loading members...</p>
           )}
 
           {!loading && listaExibicao.length === 0 && (
-            <p className="text-muted small">Não há utilizadores para mostrar.</p>
+            <p className="text-muted small">No users to show.</p>
           )}
 
           <div className="row row-cols-1 row-cols-md-2 g-3">
@@ -210,11 +210,11 @@ function Community() {
         <div className="col-lg-4 mt-4 mt-lg-0">
           <div className="card shadow-sm border-0 p-3 bg-light">
             <h5 className="fw-bold text-secondary mb-3" style={{ fontSize: '16px' }}>
-              Pedidos Recebidos
+              Received Requests
             </h5>
 
             {pedidosRecebidos.length === 0 && (
-              <p className="text-muted small">Sem pedidos pendentes.</p>
+              <p className="text-muted small">No pending requests.</p>
             )}
 
             {pedidosRecebidos.map((pedido) => {
