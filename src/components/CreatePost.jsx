@@ -43,21 +43,21 @@ function CreatePost({ onSalvar, onFechar }) {
 
       <div className="mb-3">
         <label className="form-label text-secondary small fw-bold">
-          Visibilidade
+          Visibility
         </label>
         <select
           className="form-select form-select-sm"
           value={visibilidade}
           onChange={(e) => setVisibilidade(e.target.value)}
         >
-          <option value="public">Público</option>
-          <option value="private">Privado</option>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
         </select>
       </div>
 
       <div className="mb-3">
         <label className="form-label text-secondary small fw-bold">
-          Imagem opcional
+          Image Optional
         </label>
         <input
           type="file"
@@ -73,14 +73,14 @@ function CreatePost({ onSalvar, onFechar }) {
           className="btn btn-sm btn-outline-secondary"
           onClick={onFechar}
         >
-          Cancelar
+          Cancel
         </button>
 
         <button
           type="submit"
           className="btn btn-sm btn-primary"
         >
-          Publicar
+          Post
         </button>
       </div>
     </form>

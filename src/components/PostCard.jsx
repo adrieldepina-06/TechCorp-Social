@@ -255,7 +255,7 @@ function PostCard({ post }) {
             className="btn btn-sm w-100 fw-bold btn-light"
             onClick={toggleComments}
           >
-            Comentários ({commentsCount})
+            Comments ({commentsCount})
           </button>
         </div>
       </div>
@@ -271,16 +271,16 @@ function PostCard({ post }) {
               onChange={(e) => setCommentText(e.target.value)}
             />
             <button className="btn btn-sm btn-primary" type="submit">
-              Enviar
+              Send
             </button>
           </form>
 
           {commentsLoading && (
-            <p className="text-muted small">A carregar comentários...</p>
+            <p className="text-muted small">Loading comments...</p>
           )}
 
           {!commentsLoading && comments.length === 0 && (
-            <p className="text-muted small mb-0">Sem comentários ainda.</p>
+            <p className="text-muted small mb-0">No comments yet.</p>
           )}
 
           {comments.map((comment) => (

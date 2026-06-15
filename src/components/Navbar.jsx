@@ -62,7 +62,7 @@ export default function Navbar() {
                 className={`nav-link fw-bold small ${location.pathname === '/comunidade' ? 'text-info active' : 'text-light opacity-75'}`}
                 to="/comunidade"
               >
-                Comunidade
+                Community
               </Link>
             </li>
           </ul>
@@ -77,7 +77,7 @@ export default function Navbar() {
               aria-expanded="false"
               style={{ letterSpacing: '0.3px' }}
             >
-              Olá, {usuarioLogado.name?.split(' ')[0]}
+              Hello, {usuarioLogado.name?.split(' ')[0]}
             </button>
 
             {/* bg-white + shadow-lg faz o menu destacar-se totalmente das páginas brancas abaixo */}
@@ -85,7 +85,7 @@ export default function Navbar() {
               <li>
                 {/* Sem classes de cor forçadas no texto para o efeito de hover funcionar perfeitamente */}
                 <Link className="dropdown-item py-2 fw-medium text-dark" to="/profile" style={{ fontSize: '14px' }}>
-                  Meu Perfil
+                  My Profile
                 </Link>
               </li>
               <li>
@@ -97,7 +97,7 @@ export default function Navbar() {
                   onClick={handleLogout}
                   style={{ fontSize: '14px' }}
                 >
-                  Terminar Sessão
+                  Log Out
                 </button>
               </li>
             </ul>
