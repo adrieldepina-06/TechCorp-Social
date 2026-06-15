@@ -86,7 +86,7 @@ function Timeline() {
 
   return (
     <div className="container mt-4" style={{ maxWidth: '1140px' }}>
-      <div className="row">
+      <div className="row justify-content-center">
 
         {/* COLUNA ESQUERDA: Feed Principal */}
         <div className="col-lg-8">
@@ -103,19 +103,6 @@ function Timeline() {
             <PostCard key={item.id} post={item} />
           ))}
         </div>
-
-        {/* COLUNA DIREITA: Barra Lateral */}
-        <div className="col-lg-4 mt-4 mt-lg-0">
-          <div className="card shadow-sm border-0 p-3 bg-light">
-            <h5 className="mb-3 fw-bold text-secondary" style={{ fontSize: '16px' }}>
-              Friend Suggestions
-            </h5>
-            <p className="text-muted small mb-0">
-              Coming soon: suggestions based on your network!
-            </p>
-          </div>
-        </div>
-
       </div>
 
       {/* BOTÃO FLUTUANTE */}

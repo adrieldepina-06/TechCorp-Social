@@ -12,6 +12,19 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
+    // 1. Validação do formato do Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Por favor, insira um endereço de email válido (ex: utilizador@dominio.com).');
+      return; // Bloqueia o envio para o backend
+    }
+
+    // 2. Validação da Password (Mínimo de 6 caracteres)
+    if (password.length < 6) {
+      setError('A password deve conter pelo menos 6 caracteres.');
+      return; // Bloqueia o envio para o backend
+    }
+
     try {
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
@@ -84,4 +97,4 @@ export default function Register() {
       </div>
     </div>
   );
-} // <- Esta era a chaveta que faltava na linha 54!
+}
