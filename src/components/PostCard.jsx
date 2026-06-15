@@ -205,7 +205,7 @@ function PostCard({ post }) {
         <div>
           <h6 className="mb-0 fw-bold">{post.name || 'User'}</h6>
           <small className="text-muted" style={{ fontSize: '12px' }}>
-            {formatDate(post.created_at)} · {post.visibility === 'private' ? 'Privado' : 'Público'}
+            {formatDate(post.created_at)} · {post.visibility === 'private' ? 'Private' : 'Public'}
           </small>
         </div>
 
@@ -246,7 +246,7 @@ function PostCard({ post }) {
             className={`btn btn-sm w-100 fw-bold ${liked ? 'btn-primary' : 'btn-light'}`}
             onClick={handleLike}
           >
-            {liked ? 'Gostei' : 'Gosto'} ({likes})
+            {liked ? 'Like' : 'Like'} ({likes})
           </button>
         </div>
 
@@ -301,7 +301,7 @@ function PostCard({ post }) {
                     className="btn btn-link btn-sm p-0 mt-1 text-decoration-none"
                     onClick={() => likeComment(comment)}
                   >
-                    {comment.liked_by_me ? 'Remover gosto' : 'Gosto'} ({comment.likes_count || 0})
+                    {comment.liked_by_me ? 'Remove Like' : 'Like'} ({comment.likes_count || 0})
                   </button>
                 </div>
               </div>

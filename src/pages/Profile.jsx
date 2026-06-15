@@ -254,7 +254,7 @@ function Profile() {
   if (loading) {
     return (
       <div className="container mt-4">
-        A carregar perfil...
+        Loading profile...
       </div>
     );
   }
@@ -262,7 +262,7 @@ function Profile() {
   if (!perfil) {
     return (
       <div className="container mt-4">
-        Perfil não encontrado.
+        Profile not found.
       </div>
     );
   }
@@ -296,7 +296,7 @@ function Profile() {
               <h3 className="fw-bold mb-1">{perfil.name}</h3>
 
               <small className="text-muted">
-                {perfil.profile_visibility === 'private' ? 'Perfil privado' : 'Perfil público'}
+                {perfil.profile_visibility === 'private' ? 'Private Profile' : 'Public Profile'}
               </small>
             </div>
 
@@ -314,7 +314,7 @@ function Profile() {
                     className="btn btn-danger btn-sm"
                     onClick={logout}
                   >
-                    Sair
+                    Log Out
                   </button>
                 </>
               )}

@@ -166,22 +166,22 @@ function Community() {
               const amigo = ehAmigo(user.id);
               const pendente = pedidoFoiEnviado(user.id);
 
-              let textoBotao = '➕ Adicionar';
+              let textoBotao = '➕ Add';
               let acaoBotao = (e) => enviarPedido(e, user.id);
               let desativado = false;
               let textoSecundario = null;
               let acaoSecundaria = null;
 
               if (amigo) {
-                textoBotao = '✅ Amigos';
+                textoBotao = '✅ Friends';
                 acaoBotao = null;
                 desativado = true;
-                textoSecundario = 'Remover';
+                textoSecundario = 'Remove';
                 acaoSecundaria = (e) => removerAmigo(e, user.id);
               }
 
               if (pendente) {
-                textoBotao = '⏳ Pendente';
+                textoBotao = '⏳ Pending';
                 acaoBotao = null;
                 desativado = true;
               }
